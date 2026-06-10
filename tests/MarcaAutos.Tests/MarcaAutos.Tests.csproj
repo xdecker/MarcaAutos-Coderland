@@ -22,7 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\MarcaAutos.API\MarcaAutos.API.csproj" />
+    <ProjectReference Include="../../src/MarcaAutos.API/MarcaAutos.API.csproj" />
   </ItemGroup>
 
 </Project>
