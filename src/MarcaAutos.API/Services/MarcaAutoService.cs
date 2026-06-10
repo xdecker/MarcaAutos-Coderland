@@ -1,5 +1,6 @@
 using MarcaAutos.API.Data;
 using MarcaAutos.API.Models;
+using MarcaAutos.API.Models.DTOs;
 using Microsoft.EntityFrameworkCore;
 
 namespace MarcaAutos.API.Services;
@@ -13,8 +14,80 @@ public class MarcaAutoService : IMarcaAutoService
         _context = context;
     }
 
-    public async Task<IEnumerable<MarcaAuto>> GetAllAsync()
+    public async Task<IEnumerable<MarcaAutoDto>> GetAllAsync()
     {
-        return await _context.MarcasAutos.ToListAsync();
+        var marcas = await _context.MarcasAutos
+            .Where(m => m.Activo)
+            .ToListAsync();
+
+        return marcas.Select(MapToDto);
+    }
+
+    public async Task<MarcaAutoDto?> GetByIdAsync(int id)
+    {
+        var marca = await _context.MarcasAutos
+            .FirstOrDefaultAsync(m => m.Id == id && m.Activo);
+
+        return marca is null ? null : MapToDto(marca);
+    }
+
+    public async Task<MarcaAutoDto> CreateAsync(CreateMarcaAutoDto dto)
+    {
+        var marca = new MarcaAuto
+        {
+            Nombre = dto.Nombre,
+            Descripcion = dto.Descripcion,
+            PaisOrigen = dto.PaisOrigen,
+            AnioFundacion = dto.AnioFundacion
+        };
+
+        _context.MarcasAutos.Add(marca);
+        await _context.SaveChangesAsync();
+
+        return MapToDto(marca);
+    }
+
+    public async Task<MarcaAutoDto?> UpdateAsync(int id, UpdateMarcaAutoDto dto)
+    {
+        var marca = await _context.MarcasAutos
+            .FirstOrDefaultAsync(m => m.Id == id && m.Activo);
+
+        if (marca is null) return null;
+
+        marca.Nombre = dto.Nombre;
+        marca.Descripcion = dto.Descripcion;
+        marca.PaisOrigen = dto.PaisOrigen;
+        marca.AnioFundacion = dto.AnioFundacion;
+
+        await _context.SaveChangesAsync();
+
+        return MapToDto(marca);
+    }
+
+    public async Task<bool> DeleteAsync(int id)
+    {
+        var marca = await _context.MarcasAutos
+            .FirstOrDefaultAsync(m => m.Id == id && m.Activo);
+
+        if (marca is null) return false;
+
+        marca.Activo = false;
+        marca.FechaEliminacion = DateTime.UtcNow;
+
+        await _context.SaveChangesAsync();
+
+        return true;
+    }
+
+    private static MarcaAutoDto MapToDto(MarcaAuto marca)
+    {
+        return new MarcaAutoDto
+        {
+            Id = marca.Id,
+            Nombre = marca.Nombre,
+            Descripcion = marca.Descripcion,
+            PaisOrigen = marca.PaisOrigen,
+            AnioFundacion = marca.AnioFundacion
+        };
     }
 }
