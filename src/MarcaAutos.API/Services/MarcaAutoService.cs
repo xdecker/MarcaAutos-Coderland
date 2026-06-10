@@ -31,8 +31,13 @@ public class MarcaAutoService : IMarcaAutoService
         return marca is null ? null : MapToDto(marca);
     }
 
-    public async Task<MarcaAutoDto> CreateAsync(CreateMarcaAutoDto dto)
+    public async Task<MarcaAutoDto?> CreateAsync(CreateMarcaAutoDto dto)
     {
+        var existe = await _context.MarcasAutos
+            .AnyAsync(m => m.Nombre.ToLower() == dto.Nombre.ToLower() && m.Activo);
+
+        if (existe) return null;
+
         var marca = new MarcaAuto
         {
             Nombre = dto.Nombre,
@@ -53,6 +58,11 @@ public class MarcaAutoService : IMarcaAutoService
             .FirstOrDefaultAsync(m => m.Id == id && m.Activo);
 
         if (marca is null) return null;
+
+        var existe = await _context.MarcasAutos
+            .AnyAsync(m => m.Nombre.ToLower() == dto.Nombre.ToLower() && m.Id != id && m.Activo);
+
+        if (existe) return null;
 
         marca.Nombre = dto.Nombre;
         marca.Descripcion = dto.Descripcion;

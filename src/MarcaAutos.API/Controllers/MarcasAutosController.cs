@@ -34,6 +34,7 @@ public class MarcasAutosController : ControllerBase
     public async Task<ActionResult<MarcaAutoDto>> Create(CreateMarcaAutoDto dto)
     {
         var marca = await _service.CreateAsync(dto);
+        if (marca is null) return Conflict("Ya existe una marca con ese nombre");
         return CreatedAtAction(nameof(GetById), new { id = marca.Id }, marca);
     }
 
@@ -41,7 +42,11 @@ public class MarcasAutosController : ControllerBase
     public async Task<ActionResult<MarcaAutoDto>> Update(int id, UpdateMarcaAutoDto dto)
     {
         var marca = await _service.UpdateAsync(id, dto);
-        if (marca is null) return NotFound();
+        if (marca is null)
+        {
+            var existe = await _service.GetByIdAsync(id);
+            return existe is null ? NotFound() : Conflict("Ya existe otra marca con ese nombre");
+        }
         return Ok(marca);
     }
 
