@@ -16,9 +16,9 @@ if (app.Configuration.GetValue<bool>("SeedData:Enabled"))
 {
     using var scope = app.Services.CreateScope();
     var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    await context.Database.MigrateAsync();
     await DataSeeder.SeedAsync(context);
 }
 
 app.MapControllers();
-app.UseHttpsRedirection();
 app.Run();

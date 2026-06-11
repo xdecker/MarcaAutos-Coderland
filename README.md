@@ -41,6 +41,8 @@ dotnet run --project src/MarcaAutos.API
 La API arranca en `http://localhost:5172` o el puerto configurado. El seeder se ejecuta automaticamente al iniciar y carga las 3 marcas si la tabla esta vacia. Si quieres desactivarlo, cambia `"SeedData": { "Enabled": false }` en el appsettings.
 
 ### Opcion 2: Con Docker Compose
+* Para este metodo es necesario verificar que docker daemon se encuentre ejecutando.
+* El compose tiene configurado usar el puerto 5435 para la DB.
 
 Este metodo levanta PostgreSQL y la API juntos sin necesidad de tener nada instalado localmente (solo Docker):
 
